@@ -1,6 +1,7 @@
 <h1>Jira Zeitlogger</h1>
-<div class="errorBox"></div>
-
+<div class="errorBox box hide"></div>
+<div class="successBox box hide"></div>
+<div class="user {$userHide}">{$user}</div>
 <table>
 	<tr>
 		<th colspan="2">
@@ -9,11 +10,14 @@
 	</tr>
 	<tr>
 		<td>Host</td>
-		<td>{$host}</td>
+		<td>{$host} <input type="button" value="Verbindung testen" id="testConnection" /></td>
 	</tr>
-	<tr>
+	<tr id="rvs" class="hide">
 		<td>RVS-Weiche</td>
-		<td></td>
+		<td>
+			<input type="text" name="timetrack" id="timetrack" value="{$session.timetrack}" />
+			<input type="button" value="Ermitteln" id="getTimeTrack" />
+		</td>
 	</tr>
 </table>
 
@@ -25,13 +29,13 @@
 	</tr>
 	<tr>
 		<td>Benutzer</td>
-		<td><input type="text" name="user" value="" /></td>
+		<td><input type="text" name="username" id="username" value="{$session.username}" /></td>
 	</tr>
 	<tr>
 		<td>Passwort</td>
 		<td>
-			<input type="password" name="pass" value="" />
-			<input type="button" name="testConnection" value="Test connection" id="testConnection" />
+			<input type="password" name="password" id="password" value="" />
+			<input type="button" name="callProfile" value="Profil aufrufen" id="callProfile" />
 		</td>
 	</tr>
 </table>
@@ -44,7 +48,14 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea name="sheet"></textarea>
+			<textarea name="sheet" id="sheet">{$session.sheet}</textarea>
+			<br/>
+			<input type="button" value="Vorschau" id="preview" />
 		</td>
 	</tr>
 </table>
+
+
+
+<div class="preview hide" id="ajaxContent"></div>
+

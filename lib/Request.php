@@ -46,7 +46,7 @@ class Request {
 	 * @param string $host
 	 */
 	public function __construct($host) {
-		$this->host = (string)$host;
+		$this->host = (string)trim($host);
 	}
 
 	/**
@@ -151,7 +151,7 @@ class Request {
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 		if ($this->auth instanceof Auth) {
-			curl_setopt($curl, CURLOPT_USERPWD, sprintf("%s:%s", $this->auth->getUser(), $this->auth->getPass()));
+			curl_setopt($curl, CURLOPT_USERPWD, sprintf('%s:%s', $this->auth->getUser(), $this->auth->getPass()));
 		}
 
 		curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
@@ -173,19 +173,25 @@ class Request {
 		$errorNumber = curl_errno($curl);
 
 		if ($errorNumber > 0) {
-			throw new RequestException(sprintf('Jira request failed: code = %s, "%s"', $errorNumber, curl_error($curl)));
-		}
-		// if empty result and status != "204 No Content"
-		if (curl_getinfo($curl, CURLINFO_HTTP_CODE) == 401) {
-			throw new UnauthorizedException("Unauthorized");
+			throw new RequestException(sprintf('Jira request failed: code = %s, \'%s\'', $errorNumber, curl_error($curl)));
 		}
 
-		if ($data === '' && curl_getinfo($curl, CURLINFO_HTTP_CODE) != 204) {
-			throw new RequestException("JIRA Rest server returns unexpected result.");
+		$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+		switch ($httpCode) {
+			case 401:
+				throw new UnauthorizedException('Unauthorized');
+
+			case 403:
+				throw new UnauthorizedException('Forbidden. Maybe you have to login with captcha.');
+		}
+
+		if ($data === '' && $httpCode != 204) {
+			throw new RequestException('JIRA Rest server returns unexpected result.');
 		}
 
 		if (is_null($data)) {
-			throw new RequestException("JIRA Rest server returns unexpected result.");
+			throw new RequestException('JIRA Rest server returns unexpected result.');
 		}
 
 		return json_decode($data, true);

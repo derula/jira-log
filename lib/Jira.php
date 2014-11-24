@@ -51,6 +51,33 @@ class Jira {
 		return $this->getRequest()->setMethodGet()->setPath('/rest/api/latest/serverInfo')->get();
 	}
 
+	public function getMyProfile() {
+		$auth = $this->getAuth();
+		$response = $this->getRequest()
+			->setMethodGet()
+			->setAuth($auth)
+			->setPath('/rest/api/2/myself')
+			->get()
+		;
+		return $response;
+	}
+
+	public function getTimeTrackTask() {
+		$auth = $this->getAuth();
+		$params = array(
+			'jql' => 'assignee = currentUser() and summary ~ "timetrack"',
+		);
+
+		$response = $this->getRequest()
+			->setMethodPost()
+			->setParams($params)
+			->setAuth($auth)
+			->setPath('/rest/api/2/search')
+			->get()
+		;
+		return $response;
+	}
+
 	/**
 	 * @author Manuel Will
 	 * @since 2014-11

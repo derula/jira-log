@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Template
+ */
 class Template {
 
 	/**
@@ -12,28 +15,70 @@ class Template {
 	 */
 	private $viewDirectory = '';
 
+	/**
+	 *
+	 */
 	public function __construct() {
 		$this->viewDirectory = Config::get(Config::KEY_BASE_DIR) . 'view' . DS ;
 	}
 
+	/**
+	 * @param $variableName
+	 * @param $value
+	 * @return $this
+	 */
 	public function assign($variableName, $value) {
 		$this->variables[(string)$variableName] = $value;
+		return $this;
 	}
 
+	/**
+	 * @param array $data
+	 */
 	public function assignByArray(array $data) {
 		foreach ($data as $variableName => $value) {
 			$this->assign($variableName, $value);
 		}
 	}
 
+	/**
+	 * @param $variableName
+	 * @return string
+	 */
 	private function getVariable($variableName) {
-		if (isset($this->variables[(string)$variableName])) {
-			return $this->variables[(string)$variableName];
+		$keys = explode('.', $variableName);
+		$firstKey = current($keys);
+		unset($keys[0]);
+
+		switch ($firstKey) {
+			case 'session':
+				$mixed = $_SESSION;
+				break;
+
+			default:
+				$mixed = (isset($this->variables[(string)$firstKey])) ? $this->variables[(string)$firstKey] : '';
 		}
 
-		return '';
+		return $this->resolveVariable($mixed, $keys);
 	}
 
+	private function resolveVariable($mixedData, array $deepPath) {
+		foreach ($deepPath as $key) {
+			if (isset($mixedData[$key])) {
+				$mixedData = $mixedData[$key];
+			}
+			else {
+				return '';
+			}
+		}
+
+		return $mixedData;
+	}
+
+	/**
+	 * @param $file
+	 * @return mixed|string
+	 */
 	public function fetch($file) {
 		$path = $this->viewDirectory.$file;
 		$content = '';
