@@ -1,10 +1,11 @@
 <?php
 
 define('DS', DIRECTORY_SEPARATOR);
+define('BASR_DIR', dirname(dirname(__FILE__)) . DS);
 
 // quick and dirty autoloader
 spl_autoload_register(function ($class) {
-	$libFilePath = dirname(dirname(__FILE__)) . DS . 'lib/' . $class . '.php';
+	$libFilePath =  BASR_DIR . 'lib/' . $class . '.php';
 
 	if (file_exists($libFilePath)) {
 		require_once $libFilePath;
@@ -14,10 +15,17 @@ spl_autoload_register(function ($class) {
 $user = isset($_POST['username']) ? $_POST['username'] : null;
 $pass = isset($_POST['password']) ? $_POST['password'] : null;
 
+Config::set(Config::KEY_BASE_DIR, BASR_DIR);
 Config::set(Config::KEY_USERNAME, $user);
 Config::set(Config::KEY_PASSWORD, $pass);
 Config::set(Config::KEY_JIRA_HOST, file_get_contents(dirname(dirname(__FILE__)).DS.'host'));
 
 $jira = new Jira();
-//@todo test+view+design
+$template = new Template();
+$template->assign('host', Config::get(Config::KEY_JIRA_HOST));
 
+$html = $template->fetch('index.tpl');
+
+$template->assign('content', $html);
+$html = $template->fetch('body.tpl');
+echo $html;

@@ -11,6 +11,7 @@ class Config {
 	/**
 	 *
 	 */
+	const KEY_BASE_DIR = 'base-dir';
 	const KEY_JIRA_HOST = 'jira-host';
 	const KEY_USERNAME= 'jira-user';
 	const KEY_PASSWORD = 'jira-pass';
