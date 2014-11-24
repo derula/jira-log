@@ -20,6 +20,12 @@ class Template {
 		$this->variables[(string)$variableName] = $value;
 	}
 
+	public function assignByArray(array $data) {
+		foreach ($data as $variableName => $value) {
+			$this->assign($variableName, $value);
+		}
+	}
+
 	private function getVariable($variableName) {
 		if (isset($this->variables[(string)$variableName])) {
 			return $this->variables[(string)$variableName];

@@ -17,7 +17,6 @@ class Jira {
 	 *
 	 */
 	public function __construct() {
-		$this->testConnection();
 	}
 
 	/**
@@ -49,7 +48,7 @@ class Jira {
 	 * @since 2014-11
 	 */
 	public function testConnection() {
-		$this->getRequest()->setMethodGet()->setPath('/rest/api/latest/serverInfo')->get();
+		return $this->getRequest()->setMethodGet()->setPath('/rest/api/latest/serverInfo')->get();
 	}
 
 	/**

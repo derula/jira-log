@@ -31,7 +31,7 @@
 		<td>Passwort</td>
 		<td>
 			<input type="password" name="pass" value="" />
-			<input type="button" name="testConnection" value="Test connection" />
+			<input type="button" name="testConnection" value="Test connection" id="testConnection" />
 		</td>
 	</tr>
 </table>

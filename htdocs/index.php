@@ -22,10 +22,35 @@ Config::set(Config::KEY_JIRA_HOST, file_get_contents(dirname(dirname(__FILE__)).
 
 $jira = new Jira();
 $template = new Template();
-$template->assign('host', Config::get(Config::KEY_JIRA_HOST));
 
-$html = $template->fetch('index.tpl');
+$template->assignByArray(array(
+	'host' => Config::get(Config::KEY_JIRA_HOST)
+));
 
-$template->assign('content', $html);
-$html = $template->fetch('body.tpl');
+$html = '';
+
+$requestUri = $_SERVER['REQUEST_URI'];
+
+
+if (!empty($_SERVER['HTTP_X_IS_AJAX_CALL']) && $_SERVER['HTTP_X_IS_AJAX_CALL'] === 'yes') {
+	$json = array();
+	try {
+		switch ($requestUri) {
+			case '/test':
+				$json = $jira->testConnection();
+				break;
+		}
+	}
+	catch(Exception $e) {
+		$json = array('error' => $e->getMessage());
+	}
+
+	$html = json_encode($json);
+}
+else {
+	$html = $template->fetch('index.tpl');
+	$template->assign('content', $html);
+	$html = $template->fetch('body.tpl');
+}
+
 echo $html;
