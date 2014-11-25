@@ -97,6 +97,8 @@ if (!empty($_SERVER['HTTP_X_IS_AJAX_CALL']) && $_SERVER['HTTP_X_IS_AJAX_CALL'] =
 
 			case '/preview':
 				$plainText = $_SESSION['sheet'];
+				$t = new Task('RVS-1214');
+
 				// class to dispatch in a loop
 				$html = $template->assign('data', array())->fetch('preview.tpl');
 				break;

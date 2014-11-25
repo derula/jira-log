@@ -62,10 +62,10 @@ class Jira {
 		return $response;
 	}
 
-	public function getTimeTrackTask() {
+	public function search($jql) {
 		$auth = $this->getAuth();
 		$params = array(
-			'jql' => 'assignee = currentUser() and summary ~ "timetrack"',
+			'jql' => $jql,
 		);
 
 		$response = $this->getRequest()
@@ -75,6 +75,31 @@ class Jira {
 			->setPath('/rest/api/2/search')
 			->get()
 		;
+		return $response;
+	}
+
+	/**
+	 * @return array|mixed
+	 */
+	public function getTimeTrackTask() {
+		return $this->search('assignee = currentUser() and summary ~ "timetrack"');
+	}
+
+	/**
+	 * @param $issue
+	 * @return array|mixed
+	 * @throws RequestException
+	 * @throws UnauthorizedException
+	 */
+	public function getIssue($issue) {
+		$auth = $this->getAuth();
+		$response = $this->getRequest()
+			->setMethodGet()
+			->setAuth($auth)
+			->setPath(sprintf('/rest/api/latest/issue/%s?expand=schema,names,transitions', $issue))
+			->get()
+		;
+
 		return $response;
 	}
 
@@ -91,12 +116,7 @@ class Jira {
 	 */
 	public function logTime($issue, $duration, $comment, $strDateTime = null) {
 		$auth = $this->getAuth();
-		$response = $this->getRequest()
-			->setMethodGet()
-			->setAuth($auth)
-			->setPath(sprintf('/rest/api/latest/issue/%s?expand=schema,names,transitions', $issue))
-			->get()
-		;
+		$response = $this->getIssue($issue);
 
 		$internalIssueIdentifier = $response['id'];
 		$date = new DateTime($strDateTime);
