@@ -1,1 +1,16 @@
-{$data}
+<table>
+	<tr>
+		<td>
+			Task
+		</td>
+		<td>
+			Beschreibung
+		</td>
+		<td>
+			Arbeitszeit
+		</td>
+		<td>
+			Kommentar
+		</td>
+	</tr>
+</table>

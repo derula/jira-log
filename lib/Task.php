@@ -6,8 +6,9 @@ class Task {
 	private $summary = '';
 	private $comment = '';
 
-	public function __construct($issue) {
+	public function __construct($issue, $comment) {
 		$this->issue = (string)$issue;
+		$this->comment = (string)$comment;
 		$this->resolve();
 	}
 
@@ -16,13 +17,15 @@ class Task {
 		$response = $jira->getIssue($this->issue);
 
 		if (strtolower($response['key']) === strtolower($this->issue)) {
-
+			$this->summary = $response['fields']['summary'];
 		}
-
-		$response['fields']['summary'];
-		$response['fields']['summary'];
-
-		var_dump($response);exit;
 	}
 
+	public function getSummary() {
+		return $this->summary;
+	}
+
+	public function getIssue() {
+		return $this->issue;
+	}
 }
