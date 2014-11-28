@@ -97,13 +97,10 @@ if (!empty($_SERVER['HTTP_X_IS_AJAX_CALL']) && $_SERVER['HTTP_X_IS_AJAX_CALL'] =
 
 			case '/preview':
 				$plainText = !empty($_SESSION['sheet']) ? $_SESSION['sheet'] : '';
+				$taskParser = new TaskParser($plainText, $_SESSION['timetrack']);
+				$taskHtmlObjects = $taskParser->getTaskHtmlObjects();
 
-				// loop
-				// get tasks object
-				// table Task|summary|hour|comment
-				$t = new Task('RVS-1214', 'asdf');
-				// class to dispatch in a loop
-				$html = $template->assign('data', '')->fetch('preview.tpl');
+				$html = $template->assign('data', implode('', $taskHtmlObjects))->fetch('preview.tpl');
 				break;
 		}
 

@@ -1,4 +1,4 @@
-<table>
+<table class="taskPreview small">
 	<tr>
 		<td>
 			Task
@@ -13,4 +13,5 @@
 			Kommentar
 		</td>
 	</tr>
+	{$data}
 </table>

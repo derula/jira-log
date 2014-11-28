@@ -125,3 +125,50 @@ table textarea {
 
 	border: 1px solid #ad3118;
 }
+
+.small {
+	font-size: 90%;
+}
+
+.smallInput {
+	font-size: 9pt !important;
+}
+
+.wrapperLeft {
+	width: 600px;
+}
+
+.taskPreview {
+	width: 850px;
+}
+
+.taskPreview td:first-child {
+	font-weight: normal;
+	width: 75px !important;
+}
+
+.taskPreview tr td:nth-child(3) {
+	width: 106px;
+}
+
+.taskPreview tr td:nth-child(4) {
+	width: 260px;
+}
+
+.taskPreview textarea {
+	height: 70px;
+}
+
+.taskPreview td {
+	vertical-align: top;
+}
+
+.numberHour {
+	width: 30px;
+}
+
+.numberMinute {
+	width: 35px;
+}
+
+

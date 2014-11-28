@@ -4,11 +4,9 @@ class Task {
 
 	private $issue = '';
 	private $summary = '';
-	private $comment = '';
 
-	public function __construct($issue, $comment) {
+	public function __construct($issue) {
 		$this->issue = (string)$issue;
-		$this->comment = (string)$comment;
 		$this->resolve();
 	}
 
@@ -28,4 +26,5 @@ class Task {
 	public function getIssue() {
 		return $this->issue;
 	}
+
 }
