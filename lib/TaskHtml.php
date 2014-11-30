@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TaskHtml
+ */
 class TaskHtml {
 
 	/**
@@ -17,21 +20,34 @@ class TaskHtml {
 	 */
 	private $time = '';
 
-
+	/**
+	 * @param Task $task
+	 */
 	public function __construct(Task $task) {
 		$this->task = $task;
 	}
 
+	/**
+	 * @param string $time
+	 * @return $this
+	 */
 	public function setTime($time) {
 		$this->time = (string)$time;
 		return $this;
 	}
 
+	/**
+	 * @param string $comment
+	 * @return $this
+	 */
 	public function setComment($comment) {
 		$this->comment = (string)$comment;
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
 		$time = $this->time;
 		$time = preg_replace('~([^0-9,])~', '', $time);
@@ -45,7 +61,7 @@ class TaskHtml {
 			'issue' => $this->task->getIssue(),
 			'summary' => $this->task->getSummary(),
 			'timeHour' => $time[0],
-			'timeMin' => ($time[1]/100)*60,
+			'timeMin' => ($time[1] / 100) * 60,
 			'comment' => $this->comment,
 		));
 
