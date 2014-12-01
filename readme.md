@@ -1,3 +1,4 @@
+@todo
 - test booking time in real usage first.
 - autoloader folders by underscore and refactor files (example: request.php -> Jira/Request.php -> class Jira_Request).
 - refactor dispatcher. own classes for site calls.
