@@ -48,7 +48,7 @@ class ParserCompact extends ParserAbstract {
 		foreach ($parts as $key => &$piece) {
 			$piece = trim($piece);
 			foreach($searchReplacePattern as $regEx => $replace) {
-				$piece = trim(preg_replace('~' . $regEx . '~', $replace, $piece));
+				$piece = trim(preg_replace('~' . $regEx . '~i', $replace, $piece));
 			}
 			$piece = ucfirst($piece);
 
