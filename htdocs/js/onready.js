@@ -1,3 +1,6 @@
+/**
+ *
+ */
 $(document).ready(function () {
 
 	var disableLoggedInFields = function() {
@@ -25,6 +28,14 @@ $(document).ready(function () {
 			}
 		}
 	);
+
+	_book = function (param) {
+		var callback = function() {
+			$('#ajaxContent').html('');
+			$('#sheet').html('');
+		};
+		_callAjax('/book', {'tasks': param}, callback);
+	};
 
 	_defaultHandling = function (jsonResponse) {
 		var success = $('.successBox'),
@@ -64,6 +75,14 @@ $(document).ready(function () {
 				}
 			}
 		});
+
+		//$.getScript( "/js/onready.js" )
+		//.done(function( script, textStatus ) {
+		//	console.log( textStatus );
+		//})
+		//.fail(function( jqxhr, settings, exception ) {
+		//	console.log( "Triggered ajaxError handler." );
+		//});
 	};
 
 	_calculate = function() {
@@ -92,11 +111,11 @@ $(document).ready(function () {
 		$('.MinSum').text(minute + 'm');
 	};
 
-	$('#testConnection').click(function () {
+	$('#testConnection').off('click.test').on('click.test', function () {
 		_callAjax('/check', {});
 	});
 
-	$('#getTimeTrack').click(function () {
+	$('#getTimeTrack').off('click.timeTrack').on('click.timeTrack', function () {
 		var callback = function(jsonResponse) {
 			if (jsonResponse['issues'] && jsonResponse['issues'][0] && jsonResponse['issues'][0]['key']) {
 				$('#timetrack').val(jsonResponse['issues'][0]['key']);
@@ -106,7 +125,7 @@ $(document).ready(function () {
 		_callAjax('/timetrack', {}, callback);
 	});
 
-	$('#callProfile').click(function () {
+	$('#callProfile').off('click.profile').on('click.profile', function () {
 		var params = {'username': $('#username').val(), 'password': $('#password').val()};
 		var callback = function(jsonResponse) {
 			$('.user').show();
@@ -116,13 +135,32 @@ $(document).ready(function () {
 		_callAjax('/me', params, callback);
 	});
 
-	$('#preview').click(function () {
+	$('#preview').off('click.preview').on('click.preview', function () {
 		var params = {'sheet': $('#sheet').val()};
 		var callback = function(jsonResponse) {
 			$('#ajaxContent').show();
 			_calculate();
 			$('.numberHour, .numberMinute').change(function() {
 				_calculate();
+			});
+			$('input.book').off('click.book').on('click.book', function(){
+				var answer = confirm('Wirklich jetzt buchen?');
+				if (answer) {
+					var items = {};
+					var i = 0;
+					$('.bookItem').each(function(index, objectIdentifier) {
+						var trObject = $(objectIdentifier),
+							taskIssue = trObject.attr('data-issue'),
+							hours = $('.numberHour', trObject).val() + 'h ',
+							minutes = $('.numberMinute', trObject).val() + 'm ',
+							comment = $('.comment', trObject).val()
+						;
+						items[i] = {'issue': taskIssue, 'duration': hours + minutes, 'comment': comment};
+						i++;
+					});
+
+					_book(items);
+				}
 			});
 		};
 
@@ -131,8 +169,7 @@ $(document).ready(function () {
 
 	disableLoggedInFields();
 
-	$('#username').keypress(function(){
+	$('#username').off('keypress.fields').on('keypress.fields', function(){
 		enableFields();
 	});
-
 });

@@ -100,6 +100,42 @@ if (!empty($_SERVER['HTTP_X_IS_AJAX_CALL']) && $_SERVER['HTTP_X_IS_AJAX_CALL'] =
 				$taskHtmlObjects = TaskParserFactory::getTaskHtmlObjects($plainText, $_SESSION['timetrack']);
 				$html = $template->assign('data', implode('', $taskHtmlObjects))->fetch('preview.tpl');
 				break;
+
+			case '/book':
+				if (!isset($_POST['tasks'])) {
+					throw new Exception('Keine zu buchende Tasks vorhanden.');
+				}
+
+				$fields = array('issue', 'duration', 'comment');
+				$tasks = $_POST['tasks'];
+
+				// check for valid data, stop on error and book nothing!
+				foreach ($tasks as $index => $data) {
+					foreach ($fields as $keyName) {
+						if (!isset($data[$keyName])) {
+							$error = array();
+							foreach ($data as $k => $v) {
+								if ($k === 'comment') {
+									$v = substr($v, 0, 10);
+								}
+
+								$error[] = trim($k) . ': ' . trim($v);
+							}
+
+							$message = 'Es trat ein Fehler beim Loggen eines Tasks auf (mit '.$keyName.'). '.PHP_EOL.PHP_EOL . implode(PHP_EOL, $error);
+							throw new Exception(nl2br(trim($message)));
+						}
+					}
+				}
+
+				$jira = new Jira();
+				foreach ($tasks as $index => $data) {
+					// not tested yet. it have to test on real booking time.
+//					$jira->logTime($fields['issue'], $fields['duration'], $fields['comment']);
+				}
+				$successMessage = 'Zeiten erfolgreich gebucht. Schönen Feierabend!';
+				$_SESSION['sheet'] = '';
+				break;
 		}
 
 		$json['success'] = $successMessage;

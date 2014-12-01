@@ -3,8 +3,7 @@
 /**
  * Class Auth
  *
- * @author Manuel Will
- * @since 2014-11
+ * @author Manuel Will <insphare@gmail.com>
  */
 class Auth {
 
@@ -19,8 +18,8 @@ class Auth {
 	private $pass = null;
 
 	/**
-	 * @param $user
-	 * @param $pass
+	 * @param string $user
+	 * @param string $pass
 	 */
 	public function __construct($user, $pass) {
 		$this->user = (string)$user;
@@ -28,8 +27,7 @@ class Auth {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
 	 * @return null|string
 	 */
 	public function getPass() {
@@ -37,8 +35,7 @@ class Auth {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
 	 * @return null|string
 	 */
 	public function getUser() {

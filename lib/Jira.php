@@ -3,8 +3,7 @@
 /**
  * Class Jira
  *
- * @author Manuel Will
- * @since 2014-11
+ * @author Manuel Will <insphare@gmail.com>
  */
 class Jira {
 
@@ -14,14 +13,8 @@ class Jira {
 	private $auth;
 
 	/**
+	 * @author Manuel Will <insphare@gmail.com>
 	 *
-	 */
-	public function __construct() {
-	}
-
-	/**
-	 * @author Manuel Will
-	 * @since 2014-11
 	 * @return Auth
 	 */
 	private function getAuth() {
@@ -33,8 +26,8 @@ class Jira {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
+	 *
 	 * @return Request
 	 */
 	private function getRequest() {
@@ -44,13 +37,19 @@ class Jira {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
 	 */
 	public function testConnection() {
 		return $this->getRequest()->setMethodGet()->setPath('/rest/api/latest/serverInfo')->get();
 	}
 
+	/**
+	 * Returns profile data from current user.
+	 *
+	 * @return array|mixed
+	 * @throws RequestException
+	 * @throws UnauthorizedException
+	 */
 	public function getMyProfile() {
 		$auth = $this->getAuth();
 		$response = $this->getRequest()
@@ -62,6 +61,14 @@ class Jira {
 		return $response;
 	}
 
+	/**
+	 * Search an issue by jql conditions.
+	 *
+	 * @param string $jql
+	 * @return array|mixed
+	 * @throws RequestException
+	 * @throws UnauthorizedException
+	 */
 	public function search($jql) {
 		$auth = $this->getAuth();
 		$params = array(
@@ -79,6 +86,8 @@ class Jira {
 	}
 
 	/**
+	 * Search the time tracking for current user.
+	 *
 	 * @return array|mixed
 	 */
 	public function getTimeTrackTask() {
@@ -86,8 +95,12 @@ class Jira {
 	}
 
 	/**
-	 * @param $issue
+	 * Returns issue data by issue name.
+	 *
+	 * @param string $issue
+	 *
 	 * @return array|mixed
+	 *
 	 * @throws RequestException
 	 * @throws UnauthorizedException
 	 */
@@ -104,13 +117,14 @@ class Jira {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * Logs time for work.
 	 *
-	 * @param $issue
-	 * @param $duration
-	 * @param $comment
-	 * @param null $strDateTime
+	 * @author Manuel Will <insphare@gmail.com>
+	 *
+	 * @param string $issue
+	 * @param string $duration
+	 * @param string $comment
+	 * @param null|string $strDateTime
 	 *
 	 * @return array|mixed
 	 */

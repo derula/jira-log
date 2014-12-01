@@ -13,6 +13,9 @@ html {
 .left {float: left;}
 .right {float: right;}
 .fix, .clear {clear: both;}
+.pad { margin-bottom: 10px; margin-top: 10px; }
+.top { margin-top: 0 !important; }
+.bottom { margin-top: 0 !important; }
 
 .username, .email {
 	padding: 3px;

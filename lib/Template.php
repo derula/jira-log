@@ -62,6 +62,11 @@ class Template {
 		return $this->resolveVariable($mixed, $keys);
 	}
 
+	/**
+	 * @param mixed $mixedData
+	 * @param array $deepPath
+	 * @return string
+	 */
 	private function resolveVariable($mixedData, array $deepPath) {
 		foreach ($deepPath as $key) {
 			if (isset($mixedData[$key])) {

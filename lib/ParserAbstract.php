@@ -8,7 +8,7 @@ abstract class ParserAbstract {
 	/**
 	 * @var string
 	 */
-	protected $sheet = '';
+	protected $textSheet = '';
 
 	/**
 	 * @var array
@@ -30,7 +30,7 @@ abstract class ParserAbstract {
 	 * @param string $alternateIssue
 	 */
 	public function __construct($sheet, $alternateIssue) {
-		$this->sheet = (string)trim($sheet);
+		$this->textSheet = (string)trim($sheet);
 		$this->alternateIssue = (string)$alternateIssue;
 	}
 
@@ -49,8 +49,8 @@ abstract class ParserAbstract {
 	/**
 	 * @return string
 	 */
-	protected function getSheet() {
-		return $this->sheet;
+	protected function getTextSheet() {
+		return $this->textSheet;
 	}
 
 	/**

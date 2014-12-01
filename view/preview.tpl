@@ -27,3 +27,7 @@
 		</td>
 	</tr>
 </table>
+<div class="pad"></div>
+<div class="right">
+	<input type="button" value="Zeiten auf eigene Gefahr buchen" class="book"/>
+</div>

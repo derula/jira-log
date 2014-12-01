@@ -3,8 +3,7 @@
 /**
  * Class Config
  *
- * @author Manuel Will
- * @since 2014-11
+ * @author Manuel Will <insphare@gmail.com>
  */
 class Config {
 
@@ -19,9 +18,7 @@ class Config {
 	/**
 	 * Prevent new instance
 	 */
-	private function __construct() {
-
-	}
+	private function __construct() {}
 
 	/**
 	 * @var array
@@ -29,8 +26,7 @@ class Config {
 	private static $config = array();
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
 	 *
 	 * @param string $key
 	 * @param mixed $value
@@ -40,8 +36,7 @@ class Config {
 	}
 
 	/**
-	 * @author Manuel Will
-	 * @since 2014-11
+	 * @author Manuel Will <insphare@gmail.com>
 	 *
 	 * @param string $key
 	 *

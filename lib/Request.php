@@ -4,7 +4,6 @@
  * Class Request
  *
  * @author Manuel Will
- * @since 2014-11
  */
 class Request {
 
@@ -51,7 +50,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 *
 	 * @param string $path
 	 *
@@ -65,7 +63,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 *
 	 * @param Auth $auth
 	 *
@@ -79,7 +76,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 * @return $this
 	 */
 	public function setMethodPost() {
@@ -90,7 +86,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 * @return $this
 	 */
 	public function setMethodGet() {
@@ -101,7 +96,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 *
 	 * @param string $key
 	 * @param mixed $value
@@ -116,7 +110,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 *
 	 * @param array $params
 	 *
@@ -132,7 +125,6 @@ class Request {
 
 	/**
 	 * @author Manuel Will
-	 * @since 2014-11
 	 *
 	 * @throws UnauthorizedException
 	 * @throws RequestException

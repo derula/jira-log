@@ -9,7 +9,7 @@ class ParserCompact extends ParserAbstract {
 	 * parse the sheet
 	 */
 	protected function parse() {
-		foreach (explode(PHP_EOL, $this->getSheet()) as $stringTaskLine) {
+		foreach (explode(PHP_EOL, $this->getTextSheet()) as $stringTaskLine) {
 			$stringTaskLine = trim($stringTaskLine, '|');
 			$data = explode('|', $stringTaskLine);
 			foreach ($data as &$row) {
@@ -33,19 +33,24 @@ class ParserCompact extends ParserAbstract {
 	 * @param string $comment
 	 */
 	protected function formatComment(&$comment) {
-		$mapping = array(
-			'tl' => '',
-			'ae' => 'Erfassung der Arbeitszeiten',
+		$searchReplacePattern = array(
+			'^tl$' => '',
+			'^ae$' => 'Erfassung der Arbeitszeiten',
+			'^sm$' => 'Sprint-Meeting',
+			'^rm$' => 'Refactoring Meeting',
+			'kommunikation' => 'Kommunikation',
+			'(^|\s+)task(\s+|$)' => '$1Task$2',
+			'(^|\s+)vorbereitung(\s+|$)' => '$1Vorbereitung$2',
 		);
 
 		$comment = trim($comment);
 		$parts = explode(',', $comment);
 		foreach ($parts as $key => &$piece) {
 			$piece = trim($piece);
-
-			if (isset($mapping[$piece])) {
-				$piece = $mapping[$piece];
+			foreach($searchReplacePattern as $regEx => $replace) {
+				$piece = trim(preg_replace('~' . $regEx . '~', $replace, $piece));
 			}
+			$piece = ucfirst($piece);
 
 			if (empty($piece)) {
 				unset($parts[$key]);
