@@ -48,6 +48,8 @@ class ParserCompact extends ParserAbstract {
 		if (isset($task)) {
 			$comment = $task . ', ' . $comment;
 		}
+			'^ik$' => 'Interne Kommunikation',
+			'^ao$' => 'Allgemeines (und Organisatorisches)',
 		$comment = trim($comment);
 		$parts = explode(',', $comment);
 		foreach ($parts as $key => &$piece) {
