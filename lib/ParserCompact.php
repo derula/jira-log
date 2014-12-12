@@ -52,6 +52,7 @@ class ParserCompact extends ParserAbstract {
 			'^ao$' => 'Allgemeines (und Organisatorisches)',
 			'^tf$' => 'Team Frühstück',
 			'^ms$' => 'Team Massage',
+			'^wf$' => 'Weihnachtsfeier',
 		$comment = trim($comment);
 		$parts = explode(',', $comment);
 		foreach ($parts as $key => &$piece) {
