@@ -44,7 +44,7 @@ class DataFormat {
 	const ROW_SEPARATOR_MATCH = '~\r?\n|\r~';
 	
 	private static $typeGuessing = array(
-		'duration' => '~^(\d+h)?\s*(\d+m)?$~',
+		'duration' => '~^(?:(?:(\d+)h)?\s*(?:(\d+)m)?|\d+(?:[.,]\d+)?h?)$~',
 		'tasknumber' => '~^[A-Z]{1,4}-?\d{1,5}$~i',
 		'starttime' => null,
 		'description' => null,
@@ -180,6 +180,11 @@ class DataFormat {
 						break;
 					}
 				}
+			}
+			// Convert xh ym into x,zzh
+			preg_match(self::$typeGuessing['duration'], (string) $args['duration'], $match);
+			if (isset($match[1])) {
+				$args['duration'] = number_format($match[1] + $match[2] / 60, 2, ',', '');
 			}
 			$callback($args);
 		}

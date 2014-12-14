@@ -25,7 +25,7 @@ class ParserGeneric extends ParserAbstract {
 	 */
 	protected function parse() {
 		$this->format->each($this->getTextSheet(), function($row) {
-			$this->addTask($row['tasknumber'], $row['duration'], $row['description']);
+			$this->addTask($row['tasknumber'], $row['duration'], $row['description'], $row['starttime']);
 		});
 	}
 }
