@@ -168,7 +168,7 @@ table textarea {
 	vertical-align: top;
 }
 
-input[type=date] {
+.startDate {
 	width: 64px;
 }
 

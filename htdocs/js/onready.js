@@ -132,7 +132,7 @@ $(document).ready(function () {
 			$('.numberHour, .numberMinute').change(function() {
 				_calculate();
 			});
-			$('input[type=date]').datepicker();
+			$('.startDate').datepicker();
 			$('input.book').off('click.book').on('click.book', function(){
 				var answer = confirm('Wirklich jetzt buchen?');
 				if (answer) {

@@ -6,7 +6,7 @@
 		{$summary}
 	</td>
 	<td>
-		<input id="{$issue}_start" class="startDate smallInput" type="date" value="{$startDay}" />&nbsp;
+		<input id="{$issue}_start" class="startDate smallInput" type="text" value="{$startDay}" />&nbsp;
 		<input id="{$issue}_start" class="startHour smallInput" type="number" value="{$startHour}" max="23" min="0" />:<input id="{$issue}_start" class="startMinute smallInput" type="number" value="{$startMin}" max="59" min="0" /> Uhr
 	</td>
 	<td>
