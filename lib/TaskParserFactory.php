@@ -12,13 +12,13 @@ class TaskParserFactory {
 	 */
 	public static function getTaskHtmlObjects($sheet, $alternateIssue) {
 
-		// possibility to implement other parser
-		$format = DataFormat::guess($sheet);
-		if (isset($format)) {
-			$parser = new ParserGeneric($sheet, $alternateIssue, $format);
-		}
-		else {
-			$parser = new ParserCompact($sheet, $alternateIssue);
+		foreach ((array)Config::get(Config::KEY_PARSERS) as $classname) {
+			if (!class_exists($classname)) continue;
+			$format = $classname::canParse($sheet);
+			if ($format) {
+				$parser = new $classname($sheet, $alternateIssue, $format);
+				break;
+			}
 		}
 
 		return $parser->getTaskHtmlObjects();

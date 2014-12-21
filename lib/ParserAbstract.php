@@ -11,6 +11,16 @@ abstract class ParserAbstract {
 	protected $textSheet = '';
 
 	/**
+	 * @var mixed
+	 */
+	protected $format;
+
+	/**
+	 * @var string
+	 */
+	private $alternateIssue = '';
+
+	/**
 	 * @var array
 	 */
 	private static $taskObjects = array();
@@ -21,6 +31,15 @@ abstract class ParserAbstract {
 	private $tasks;
 
 	/**
+	 * Finds out if the parser understands format of the given data
+	 *
+	 * @return mixed
+	 */
+	public static function canParse() {
+		return false;
+	}
+
+	/**
 	 * @return mixed
 	 */
 	abstract protected function parse();
@@ -28,10 +47,12 @@ abstract class ParserAbstract {
 	/**
 	 * @param string $sheet
 	 * @param string $alternateIssue
+	 * @param mixed $format
 	 */
-	public function __construct($sheet, $alternateIssue) {
+	public function __construct($sheet, $alternateIssue, $format) {
 		$this->textSheet = (string)trim($sheet);
 		$this->alternateIssue = (string)$alternateIssue;
+		$this->format = $format;
 	}
 
 	/**
@@ -59,12 +80,15 @@ abstract class ParserAbstract {
 	 * @param string $comment
 	 */
 	protected function addTask($task, $time, $comment, $start = null) {
-		//@todo configurable
-		if (!preg_match('~^VS-\d+~', $task)) {
-			$comment = $task . ', ' . $comment;
-			$task = $this->alternateIssue;
+		$projects = implode('|', (array) Config::get(
+			Config::KEY_PROJECTS,
+			Config::SUBKEY_PROJECTS_TIMELOGGING_ALLOWED
+		));
+		$referenceTask = null;
+		if (!preg_match("~^($projects)-\\d+$~", $task)) {
+			list($referenceTask, $task) = [$task, $this->alternateIssue];
 		}
-		$this->formatComment($comment);
+		$this->formatComment($comment, $referenceTask);
 		$taskObject = $this->getTaskObject($task);
 		$taskHtml = new TaskHtml($taskObject);
 		$taskHtml->setComment($comment)->setTime($time)->setStart($start);
@@ -84,5 +108,13 @@ abstract class ParserAbstract {
 	 *
 	 * @param string $comment
 	 */
-	protected function formatComment(&$comment) {}
+	protected function formatComment(&$comment, $task = null) {
+		$searchReplacePattern = (array)Config::get(Config::KEY_REPLACEMENTS);
+		$comment = preg_replace(
+			array_keys($searchReplacePattern),
+			array_values($searchReplacePattern),
+			$comment
+		);
+		if (isset($task)) $comment = "$task:\n$comment";
+	}
 }

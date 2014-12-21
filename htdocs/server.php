@@ -23,9 +23,7 @@ if (PHP_SAPI === 'cli') {
 		2 => array ('file', 'php://stderr', 'w')
 	);
 	$proc = proc_open ("php -S localhost:8000 -t $dir $file", $descs, $fp);
-	if (is_resource($proc)) {
-		exit(proc_close($proc));
-	}
+	exit(is_resource($proc) ? proc_close($proc) : 1);
 }
 
 // Do the routing magic

@@ -91,7 +91,10 @@ class Jira {
 	 * @return array|mixed
 	 */
 	public function getTimeTrackTask() {
-		return $this->search('assignee = currentUser() and summary ~ "timetrack"');
+		return $this->search(Config::get(
+			Config::KEY_PROJECTS,
+			Config::SUBKEY_PROJECTS_TIMETRACKING_TASK_SEARCH
+		));
 	}
 
 	/**

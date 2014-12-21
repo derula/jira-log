@@ -42,9 +42,9 @@ if (!function_exists('stats_standard_deviation')) {
 class DataFormat {
 	const COL_SEPARATOR_CHARS = ";,|\t";
 	const ROW_SEPARATOR_MATCH = '~\r?\n|\r~';
-	
+
 	private static $typeGuessing = array(
-		'duration' => '~^(?:(?:(\d+)h)?\s*(?:(\d+)m)?|\d+(?:[.,]\d+)?h?)$~',
+		'duration' => '~^(?:(?:(\d+)h\s*)?(\d+)m|(\d+(?:[.,]\d+)?)\s*h?)$~',
 		'tasknumber' => '~^[A-Z]{1,4}-?\d{1,5}$~i',
 		'starttime' => null,
 		'description' => null,
@@ -109,7 +109,7 @@ class DataFormat {
 		}
 		if (isset($format->durationCol)) return $format;
 	}
-	
+
 	/**
 	 * Guesses the type of a single value according to the specification defined
 	 * above.
@@ -125,7 +125,7 @@ class DataFormat {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Guess if current column holds a start time.
 	 *
@@ -135,7 +135,7 @@ class DataFormat {
 	private static function guessStarttime($col) {
 		return strtotime($col) !== false;
 	}
-	
+
 	/**
 	 * Guess if current column holds a description.
 	 *
@@ -145,7 +145,7 @@ class DataFormat {
 	private static function guessDescription($col) {
 		return strlen($col) > 3;
 	}
-	
+
 	/**
 	 * Splits the given data into rows and columns according to current settings.
 	 *
@@ -160,7 +160,7 @@ class DataFormat {
 		}
 		return $rows;
 	}
-	
+
 	/**
 	 * Calls the given callable for each row of the given data.
 	 *
@@ -181,10 +181,14 @@ class DataFormat {
 					}
 				}
 			}
-			// Convert xh ym into x,zzh
-			preg_match(self::$typeGuessing['duration'], (string) $args['duration'], $match);
-			if (isset($match[1])) {
-				$args['duration'] = number_format($match[1] + $match[2] / 60, 2, ',', '');
+			// Convert xh ym or x,zzh into number of minutes
+			if (preg_match(self::$typeGuessing['duration'], (string) $args['duration'], $match)) {
+				if (isset($match[2])) {
+					$args['duration'] = 60 * $match[1] + $match[2];
+				}
+				else {
+					$args['duration'] = 60 * (float) str_replace(',', '.', $match[3]);
+				}
 			}
 			$callback($args);
 		}

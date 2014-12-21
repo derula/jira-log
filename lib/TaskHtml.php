@@ -19,7 +19,7 @@ class TaskHtml {
 	 * @var string
 	 */
 	private $time = '';
-	
+
 	/**
 	 * @var DateTime
 	 */
@@ -50,7 +50,7 @@ class TaskHtml {
 		$this->comment = (string)$comment;
 		return $this;
 	}
-	
+
 	/**
 	 * @param DateTime|string $start
 	 * @return $this

@@ -2,30 +2,62 @@
 
 /**
  * Class ParserGeneric
+ *
+ * @property $format DataFormat
  */
 class ParserGeneric extends ParserAbstract {
 
 	/**
-	 * @var DataFormat
+	 * @var array
 	 */
-	private $format;
+	private $taskQueue = [];
 
 	/**
+	 * Finds out if the parser understands format of the given data
+	 *
 	 * @param string $sheet
-	 * @param string $alternateIssue
-	 * @param DataFormat $format
+	 * @return mixed
 	 */
-	public function __construct($sheet, $alternateIssue, DataFormat $format) {
-		parent::__construct($sheet, $alternateIssue);
-		$this->format = $format;
+	public static function canParse($sheet) {
+		return DataFormat::guess($sheet);
 	}
 
 	/**
 	 * parse the sheet
 	 */
 	protected function parse() {
-		$this->format->each($this->getTextSheet(), function($row) {
-			$this->addTask($row['tasknumber'], $row['duration'], $row['description'], $row['starttime']);
+		$this->format->each($this->getTextSheet(), function(array $row) {
+			$this->queueTask($row);
 		});
+		$this->queueTask();
+	}
+
+	/**
+	 * memorize task for summarization / add task when number changes
+	 */
+	private function queueTask(array $task = null) {
+		$firstTask = empty($this->taskQueue) ? null : reset($this->taskQueue);
+		if (isset($task, $firstTask)) {
+			$taskChanged = $task['tasknumber'] !== $firstTask['tasknumber'];
+		} else {
+			$taskChanged = !isset($task);
+		}
+		if ($taskChanged) {
+			$tasknumber = $firstTask['tasknumber'];
+			$starttime = $firstTask['starttime'];
+			$duration = 0;
+			$descriptions = [];
+			foreach ($this->taskQueue as $row) {
+				$this->formatComment($row['description']);
+				$descriptions[] = "- $row[description]";
+				$duration += $row['duration'];
+			}
+			$duration = number_format($duration / 60, 2, ',', '');
+			$this->addTask($tasknumber, $duration, implode(PHP_EOL, $descriptions), $starttime);
+			$this->taskQueue = [];
+		}
+		if (isset($task)) {
+			$this->taskQueue[] = $task;
+		}
 	}
 }
