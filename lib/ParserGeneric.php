@@ -47,13 +47,16 @@ class ParserGeneric extends ParserAbstract {
 			$starttime = $firstTask['starttime'];
 			$duration = 0;
 			$descriptions = [];
+			$prefix = count($this->taskQueue) > 1 ? '- ' : '';
 			foreach ($this->taskQueue as $row) {
 				$this->formatComment($row['description']);
-				$descriptions[] = "- $row[description]";
+				$descriptions[] = "$prefix$row[description]";
 				$duration += $row['duration'];
 			}
-			$duration = number_format($duration / 60, 2, ',', '');
-			$this->addTask($tasknumber, $duration, implode(PHP_EOL, $descriptions), $starttime);
+			if (round($duration) !== 0.0) {
+				$duration = number_format($duration / 60, 2, ',', '');
+				$this->addTask($tasknumber, $duration, implode(PHP_EOL, $descriptions), $starttime);
+			}
 			$this->taskQueue = [];
 		}
 		if (isset($task)) {

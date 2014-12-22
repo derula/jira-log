@@ -21,6 +21,9 @@ class TaskParserFactory {
 			}
 		}
 
+		if (!isset($parser)) {
+			throw new ParseException('None of the configured parsers could understand the data format.');
+		}
 		return $parser->getTaskHtmlObjects();
 	}
 }

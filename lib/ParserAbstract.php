@@ -28,7 +28,7 @@ abstract class ParserAbstract {
 	/**
 	 * @var TaskHtml[]
 	 */
-	private $tasks;
+	private $tasks = [];
 
 	/**
 	 * Finds out if the parser understands format of the given data
@@ -115,6 +115,9 @@ abstract class ParserAbstract {
 			array_values($searchReplacePattern),
 			$comment
 		);
-		if (isset($task)) $comment = "$task:\n$comment";
+		if (!empty($task)) {
+			$this->formatComment($task);
+			$comment = "$task:\n$comment";
+		}
 	}
 }

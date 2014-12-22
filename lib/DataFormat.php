@@ -45,7 +45,7 @@ class DataFormat {
 
 	private static $typeGuessing = array(
 		'duration' => '~^(?:(?:(\d+)h\s*)?(\d+)m|(\d+(?:[.,]\d+)?)\s*h?)$~',
-		'tasknumber' => '~^[A-Z]{1,4}-?\d{1,5}$~i',
+		'tasknumber' => '~^([A-Z]{1,4})-?\d{1,5}$~i',
 		'starttime' => null,
 		'description' => null,
 	);
@@ -61,19 +61,31 @@ class DataFormat {
 	 * @return self|null
 	 */
 	public static function guess($data) {
+		$format = new self();
+		if (!self::guessSeparators($format, $data)) return null;
+		if (!self::guessColumnTypes($format, $data)) return null;
+		return $format;
+	}
+
+	/**
+	 * Guesses line and field separators. Returns success.
+	 *
+	 * @param self $format
+	 * @param string $data
+	 */
+	private static function guessSeparators(self $format, $data) {
 		preg_match_all(self::ROW_SEPARATOR_MATCH, $data, $results);
-		if (empty($results[0])) return null;
+		if (empty($results[0])) return false;
 		$rowSeps = array_count_values($results[0]);
 		arsort($rowSeps);
 		reset($rowSeps);
-		$format = new self();
 		$format->rowSeparator = key($rowSeps);
 		$rows = $format->explode($data);
 		$sepRegex = '~['.self::COL_SEPARATOR_CHARS.']~';
 		$rows = array_filter($rows, function($row) use($sepRegex) {
 			return count(preg_split($sepRegex, current($row))) > 1;
 		});
-		if (count($rows) <= 1) return null;
+		if (count($rows) <= 1) return false;
 		$colSeps = [];
 		foreach (str_split(self::COL_SEPARATOR_CHARS) as $sepChar) {
 			$colCounts = [];
@@ -86,64 +98,130 @@ class DataFormat {
 		arsort($colSeps);
 		reset($colSeps);
 		$format->colSeparator = key($colSeps);
+		return true;
+	}
+
+
+	/**
+	 * Guesses column numbers for types specified at the tom. Returns success.
+	 *
+	 * @param self $format
+	 * @param string $data
+	 */
+	private static function guessColumnTypes(self $format, $data) {
 		$rows = $format->explode($data);
-		$colCount = max(array_map('count', $rows));
-		$types = array_keys(self::$typeGuessing);
-		$default = array_combine($types, array_fill(0, count($types), 0));
-		$colTypes = array_combine(range(0, $colCount - 1), array_fill(0, $colCount, $default));
-		foreach ($rows as $row) {
-			foreach ($row as $colNo => $col) {
-				$guess = self::guessType($col);
-				if (isset($guess)) $colTypes[$colNo][$guess]++;
-			}
-		}
+		array_unshift($rows, null);
+    $cols = call_user_func_array('array_map', $rows);
+    $colTypes = [];
+    $ratings = [];
+    $cols = array_map('array_filter', $cols);
+    foreach ($cols as $colNo => $col) {
+    	$col = array_filter($col);
+    	if (empty($col)) continue;
+    	foreach (self::guessType($col) as $type => $rating) {
+    		$colTypes[] = [$colNo, $type];
+    		$ratings[] = $rating;
+    	}
+    }
+    array_multisort($ratings, SORT_DESC, $colTypes);
 		$typeCols = [];
-		foreach ($colTypes as $colNo => $types) {
-			arsort($types);
-			reset($types);
-			$type = key($types);
-			if (!isset($typeCols[$type])) $typeCols[$type] = $colNo;
+		foreach ($colTypes as $entry) {
+			list($colNo, $type) = $entry;
+			if (!isset($typeCols[$type]) && !in_array($colNo, $typeCols)) $typeCols[$type] = $colNo;
 		}
 		foreach ($typeCols as $type => $colNo) {
 			$format->{"{$type}Col"} = $colNo;
 		}
-		if (isset($format->durationCol)) return $format;
+		return isset($format->durationCol);
 	}
 
 	/**
 	 * Guesses the type of a single value according to the specification defined
 	 * above.
 	 *
-	 * @param string $col
-	 * @return string|null
+	 * @param array $col
+	 * @return array
 	 */
 	private static function guessType($col) {
+		$types = [];
+		$alreadyGuessed = false;
 		foreach (self::$typeGuessing as $type => $expr) {
-			if (is_callable([get_class(), "guess$type"])) {
-				if (self::{"guess$type"}($col)) return $type;
-			} elseif (preg_match($expr, $col)) return $type;
+			$modifier = 1;
+			$sum = 0;
+			foreach ($col as $value) {
+				if (!isset($expr)) $expr = $alreadyGuessed;
+				$sum += self::{"guess$type"}($value, $modifier, $expr);
+			}
+			$rating = $modifier * $sum / count($col);
+			if ($rating > 0.25) {
+				$types[$type] = $rating;
+				$alreadyGuessed = true;
+			}
 		}
-		return null;
+		return $types;
 	}
 
 	/**
-	 * Guess if current column holds a start time.
+	 * Guess if current value is a duration.
 	 *
-	 * @param string $col
+	 * @param string $value
+	 * @param float &$modifier
+	 * @param string $expr
 	 * @return bool
 	 */
-	private static function guessStarttime($col) {
-		return strtotime($col) !== false;
+	private static function guessDuration($value, &$modifier, $expr) {
+		$isDuration = preg_match($expr, $value);
+		// Shrink modifier for every duration failed to recognize
+		if (!$isDuration) $modifier *= 0.5;
+		return (int) $isDuration;
 	}
 
 	/**
-	 * Guess if current column holds a description.
+	 * Guess if current value is a duration.
 	 *
-	 * @param string $col
+	 * @param string $value
+	 * @param float &$modifier
+	 * @param string $expr
 	 * @return bool
 	 */
-	private static function guessDescription($col) {
-		return strlen($col) > 3;
+	private static function guessTasknumber($value, &$modifier, $expr) {
+		$rating = 0.75;
+		$timelogProjects = Config::get(
+			Config::KEY_PROJECTS,
+			Config::SUBKEY_PROJECTS_TIMELOGGING_ALLOWED
+		);
+		if (!preg_match($expr, $value, $matches)) {
+			$rating = 0.25;
+		} elseif (in_array($matches[1], $timelogProjects)) {
+			$rating = 1;
+		}
+		return $rating;
+	}
+
+	/**
+	 * Guess if current value is a start time.
+	 *
+	 * @param string $value
+	 * @param float &$modifier
+	 * @return bool
+	 */
+	private static function guessStarttime($value, &$modifier) {
+		$isDatetime = strtotime($value) !== false;
+		// If one entry of the column isn't a date, this can't be the date column.
+		if (!$isDatetime) $modifier = 0;
+		return (int) $isDatetime;
+	}
+
+	/**
+	 * Guess if current value is a description.
+	 *
+	 * @param string $value
+	 * @param float &$modifier
+	 * @param bool $guessed
+	 * @return bool
+	 */
+	private static function guessDescription($value, &$modifier, $guessed) {
+		return (strlen($value) > 3) && !$guessed;
 	}
 
 	/**
@@ -183,7 +261,7 @@ class DataFormat {
 			}
 			// Convert xh ym or x,zzh into number of minutes
 			if (preg_match(self::$typeGuessing['duration'], (string) $args['duration'], $match)) {
-				if (isset($match[2])) {
+				if (!empty($match[2])) {
 					$args['duration'] = 60 * $match[1] + $match[2];
 				}
 				else {
