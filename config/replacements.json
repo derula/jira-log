@@ -9,7 +9,7 @@
 	"~^tf$~i": "Team Frühstück",
 	"~^ms$~i": "Team Massage",
 	"~^wf$~i": "Weihnachtsfeier",
-	"~kommunikation~i": "Kommunikation",
-	"~(^|\\s+)task(\\s+|$)~i": "$1Task$2",
-	"~(^|\\s+)vorbereitung(\\s+|$)~i": "$1Vorbereitung$2"
+	"~\bkommunikation~i": "Kommunikation",
+	"~\btask~i": "Task",
+	"~\bvorbereitung~i": "Vorbereitung"
 }
