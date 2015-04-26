@@ -122,13 +122,7 @@ abstract class ParserAbstract {
 
 		if (!empty($task)) {
 			$this->formatComment($task);
-
-			if (empty(trim($comment))) {
-				$comment = "$task";
-			}
-			else {
-				$comment = "$task:\n$comment";
-			}
+			$comment = trim("$task:\n$comment");
 		}
 	}
 }
