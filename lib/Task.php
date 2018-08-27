@@ -5,6 +5,8 @@
  */
 class Task {
 
+	private static $summaryCache = [];
+
 	/**
 	 * @var string
 	 */
@@ -27,11 +29,21 @@ class Task {
 	 *
 	 */
 	private function resolve() {
+		$key = strtolower($this->issue);
+		if (isset(self::$summaryCache[$key])) {
+			list($this->issue, $this->summary) = self::$summaryCache[$key];
+			return;
+		}
+		
 		$jira = new Jira();
-		$response = $jira->getIssue($this->issue);
+		$response = $jira->getIssue($key);
 
-		if (strtolower($response['key']) === strtolower($this->issue)) {
+		if (isset($response['key'])) {
+			$this->issue = $response['key'];
 			$this->summary = $response['fields']['summary'];
+			self::$summaryCache[$key] =
+			self::$summaryCache[$response['key']] =
+				[$this->issue, $this->summary];
 		}
 	}
 

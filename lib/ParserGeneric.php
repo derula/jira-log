@@ -26,7 +26,13 @@ class ParserGeneric extends ParserAbstract {
 	 * parse the sheet
 	 */
 	protected function parse() {
-		$this->format->each($this->getTextSheet(), function(array $row) {
+		$startDate = '';
+		$this->format->each($this->getTextSheet(), function(array $row) use (&$startDate) {
+			if (empty($row['startdate'])) {
+				$row['startdate'] = $startDate;
+			} else {
+				$startDate = $row['startdate'];
+			}
 			$this->queueTask($row);
 		});
 		$this->queueTask();
@@ -38,13 +44,14 @@ class ParserGeneric extends ParserAbstract {
 	private function queueTask(array $task = null) {
 		$firstTask = empty($this->taskQueue) ? null : reset($this->taskQueue);
 		if (isset($task, $firstTask)) {
-			$taskChanged = $task['tasknumber'] !== $firstTask['tasknumber'];
+			$taskChanged = $task['tasknumber'] !== $firstTask['tasknumber'] || 
+			               $task['startdate'] !== $firstTask['startdate'];
 		} else {
 			$taskChanged = !isset($task);
 		}
 		if ($taskChanged) {
 			$tasknumber = $firstTask['tasknumber'];
-			$starttime = $firstTask['starttime'];
+			$starttime = trim($firstTask['startdate'] . ' ' . $firstTask['starttime']);
 			list($descriptions, $duration) = $this->describe();
 			if (round($duration) !== 0.0) {
 				$duration = number_format($duration / 60, 2, ',', '');
@@ -61,20 +68,25 @@ class ParserGeneric extends ParserAbstract {
 	 * create task descriptions
 	 */
 	private function describe() {
+		$parts = [];
+		foreach ($this->taskQueue as $row) {
+			$time = $parts[$row['description']] ?? 0;
+			$parts[$row['description']] = $time + $row['duration'];
+		}
 		$duration = 0;
 		$descriptions = [];
-		$multiline = count($this->taskQueue) > 1;
-		foreach ($this->taskQueue as $row) {
-			$this->formatComment($row['description']);
+		$multiline = count($parts) > 1;
+		foreach ($parts as $line => $time) {
+			$this->formatComment($line);
 			$description = $multiline ? '- ' : '';
-			$description .= $row['description'];
+			$description .= $line;
 			if ($multiline) {
 				$description .= ' (';
-				$hours = floor($row['duration'] / 60);
+				$hours = floor($time / 60);
 				if ($hours > 0) {
 					$description .= $hours . 'h';
 				}
-				$minutes = $row['duration'] % 60;
+				$minutes = $time % 60;
 				if ($minutes > 0) {
 					if ($hours > 0) $description .= ' ';
 					$description .= $minutes . 'm';
@@ -82,7 +94,7 @@ class ParserGeneric extends ParserAbstract {
 				$description .= ')';
 			}
 			$descriptions[] = $description;
-			$duration += $row['duration'];
+			$duration += $time;
 		}
 		return [$descriptions, $duration];
 	}

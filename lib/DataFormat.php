@@ -45,13 +45,14 @@ class DataFormat {
 
 	private static $typeGuessing = array(
 		'duration' => '~^(?:(?:(\d+)h\s*)?(\d+)m|(\d+(?:[.,]\d+)?)\s*h?)$~',
-		'tasknumber' => '~^([A-Z]{1,4})-?\d{1,5}$~i',
+		'tasknumber' => '~^([A-Z]{1,10})-?\d{1,5}$~i',
+		'startdate' => null,
 		'starttime' => null,
 		'description' => null,
 	);
 
-	private $rowSeparator, $colSeparator, $starttimeCol, $durationCol,
-		$tasknumberCol, $descriptionCol;
+	private $rowSeparator, $colSeparator, $startdateCol, $starttimeCol,
+		$durationCol, $tasknumberCol, $descriptionCol;
 
 	/**
 	 * Guesses line separator, field separator, and column IDs for column types
@@ -111,19 +112,19 @@ class DataFormat {
 	private static function guessColumnTypes(self $format, $data) {
 		$rows = $format->explode($data);
 		array_unshift($rows, null);
-    $cols = call_user_func_array('array_map', $rows);
-    $colTypes = [];
-    $ratings = [];
-    $cols = array_map('array_filter', $cols);
-    foreach ($cols as $colNo => $col) {
-    	$col = array_filter($col);
-    	if (empty($col)) continue;
-    	foreach (self::guessType($col) as $type => $rating) {
-    		$colTypes[] = [$colNo, $type];
-    		$ratings[] = $rating;
-    	}
-    }
-    array_multisort($ratings, SORT_DESC, $colTypes);
+	    $cols = call_user_func_array('array_map', $rows);
+	    $colTypes = [];
+	    $ratings = [];
+	    $cols = array_map('array_filter', $cols);
+	    foreach ($cols as $colNo => $col) {
+		    	$col = array_filter($col);
+		    	if (empty($col)) continue;
+		    	foreach (self::guessType($col) as $type => $rating) {
+		    		$colTypes[] = [$colNo, $type];
+		    		$ratings[] = $rating;
+		    	}
+	    }
+	    array_multisort($ratings, SORT_DESC, $colTypes);
 		$typeCols = [];
 		foreach ($colTypes as $entry) {
 			list($colNo, $type) = $entry;
@@ -199,6 +200,24 @@ class DataFormat {
 	}
 
 	/**
+	 * Guess if current value is a start date.
+	 *
+	 * @param string $value
+	 * @param float &$modifier
+	 * @return bool
+	 */
+	private static function guessStartdate($value, &$modifier) {
+		try {
+			$dateTime = new \DateTime($value);
+		} catch (\Exception $e) {
+			return 0;
+		}
+		// If one entry contains a time != 0, this can't be the date column.
+		if ((int)$dateTime->format('His')) $modifier = 0;
+		return 1;
+	}
+
+	/**
 	 * Guess if current value is a start time.
 	 *
 	 * @param string $value
@@ -206,10 +225,15 @@ class DataFormat {
 	 * @return bool
 	 */
 	private static function guessStarttime($value, &$modifier) {
-		$isDatetime = strtotime($value) !== false;
-		// If one entry of the column isn't a date, this can't be the date column.
-		if (!$isDatetime) $modifier = 0;
-		return (int) $isDatetime;
+		try {
+			$dateTime = new \DateTime($value);
+		} catch (\Exception $e) {
+			// If one entry of the column isn't a date, this can't be the time column.
+			$modifier = 0;
+			return 0;
+		}
+		// Don't count this row if the time is 0 (may be startdate instead).
+		return $dateTime->format('His') > 0;
 	}
 
 	/**
